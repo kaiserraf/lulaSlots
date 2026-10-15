@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(cuid())
+  username          String    @unique
+  passwordHash      String
+  balance           BigInt    @default(50000)
+  lastDailyRewardAt DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  spins             Spin[]
+
+  @@index([createdAt])
+}
+
+model Spin {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  betAmount    BigInt
+  symbols      Json
+  winAmount    BigInt
+  balanceAfter BigInt
+  isWin        Boolean
+  createdAt    DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
